@@ -1,55 +1,57 @@
-import random
+from random import randint, shuffle
 import numpy as np
+import networkx as nx
+import matplotlib.pyplot as plt
 
-def get_distance(matrix, path):
-    return sum(matrix[path[i], path[i+1]] for i in range(len(path)-1))
+coordinate = np.array([[1,2], [30,21], [56,23], [8,18], [20,50], [3,4], [11,6], [6,7], 
+                       [15,20], [10,9], [12,12], [46,17], [60,55], [100,80], [16,13]])
 
-def get_fitness(matrix, old_path, new_path):
-    return get_distance(matrix, new_path) - get_distance(matrix, old_path)
+def generate_matrix(coordinate):
+    return np.array([[np.linalg.norm(i-j) for j in coordinate] for i in coordinate])
 
-def random_step(path, visited):
-    available = list(set(range(len(path))) - set(visited))
-    if not available:
-        return None, visited
-    next_city = random.choice(available)
-    visited.add(next_city)
-    return next_city, visited
+def solution(matrix):
+    points = list(range(len(matrix)))
+    shuffle(points)
+    return points
 
-def solve_tsp(matrix, threshold):
-    count_cities = len(matrix)
-    path = list(range(count_cities))
-    fitness = 0
-    visited = set(path[:1])
+def path_length(matrix, solution):
+    return sum(matrix[solution[i]][solution[(i + 1) % len(solution)]] for i in range(len(solution)))
 
-    while fitness < threshold:
-        old_path = path[:]
-        city, visited = random_step(path, visited)
-        if city is None:
-            visited = set(path[:1])
-            continue
-        # Move the chosen city to the next position in the path
-        path.remove(city)
-        path.insert(1, city)
-        
-        current_fitness = get_fitness(matrix, old_path, path)
-        if current_fitness > 0:
-            fitness += current_fitness
-        else:
-            path = old_path  # revert change
-            visited.remove(city)
+def neighbors(matrix, solution):
+    best_path = path_length(matrix, solution)
+    best_neighbor = solution
+    for i in range(len(solution)):
+        for j in range(i + 1, len(solution)):
+            neighbor = solution[:]
+            neighbor[i], neighbor[j] = neighbor[j], neighbor[i]
+            current_path = path_length(matrix, neighbor)
+            if current_path < best_path:
+                best_path = current_path
+                best_neighbor = neighbor
+    return best_neighbor, best_path
 
-    return path
+def hill_climbing(coordinate):
+    matrix = generate_matrix(coordinate)
+    current_solution = solution(matrix)
+    current_path = path_length(matrix, current_solution)
+    
+    while True:
+        best_neighbor, best_neighbor_path = neighbors(matrix, current_solution)
+        if best_neighbor_path >= current_path:
+            break
+        current_solution, current_path = best_neighbor, best_neighbor_path
+    
+    return current_path, current_solution
 
-if __name__ == '__main__':
-    count_cities = 10
-    cities = np.zeros((count_cities, count_cities))
-    for i in range(count_cities):
-        for j in range(i+1, count_cities):
-            distance = random.randint(1, 100)
-            cities[i][j] = cities[j][i] = distance
+def graph(coordinate):
+    final_solution = hill_climbing(coordinate)
+    G = nx.Graph()
+    positions = {i: (coordinate[i][0], coordinate[i][1]) for i in range(len(coordinate))}
+    # G.add_node(final_solution[1])
+    color_map = ['lime' if i == final_solution[1][0] else 'plum' for i in G.nodes()]
+    
+    nx.draw(G, pos=positions, with_labels=True, node_color=color_map, node_size=500)
+    plt.show()
+    print("The solution is \n", final_solution[1], "\nThe path length is \n", final_solution[0])
 
-    print(np.matrix(cities))
-    print("=== START ===")
-    best_path = solve_tsp(cities, 10)
-    print("Best path found:", best_path)
-    print("Distance:", get_distance(cities, best_path + [best_path[0]]))
+graph(coordinate)
