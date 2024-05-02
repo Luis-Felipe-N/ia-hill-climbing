@@ -5,23 +5,43 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
             
-# #coordinate of the points/cities
+# Coordenadas dos pontos/cidades
 # coordinate = np.array([[1,2], [30,21], [56,23]])
-coordinate = np.array([[1,2], [30,21], [56,23], [8,18], [20,50], [3,4], [11,6], [6,7], [15,20], [10,9], [12,12], [46,17], [60,55], [100,80], [16,13]])
+coordinate = np.array([[1,2], [30,21], [0,0], [8,18], [20,50], [3,4], [11,6], [6,7], [15,20], [10,9], [12,12], [46,17], [60,55], [100,80], [16,13]])
 
 #adjacency matrix for a weighted graph based on the given coordinates
 def generate_matrix(coordinate):
+    """
+    Gera uma matriz de adjacência para um grafo ponderado baseado nas coordenadas fornecidas.
+    A ponderação entre dois pontos é a distância euclidiana entre eles.
+    
+    Args:
+        coordinate (np.array): Array de coordenadas dos pontos.
+
+    Returns:
+        np.array: Matriz de adjacência representando as distâncias entre os pontos.
+    """
     matrix = []
     for i in range(len(coordinate)):
         for j in range(len(coordinate)) :       
             p = np.linalg.norm(coordinate[i] - coordinate[j])
+            print(p)
             matrix.append(p)
     matrix = np.reshape(matrix, (len(coordinate),len(coordinate)))
     
     return matrix
 
-# finds a random solution    
+
 def solution(matrix):
+    """
+    Gera uma solução aleatória para o problema. A solução é uma permutação dos índices dos pontos.
+    
+    Args:
+        matrix (np.array): Matriz de adjacência dos pontos.
+
+    Returns:
+        list: Uma lista de índices representando a ordem de visita aos pontos.
+    """
     points = list(range(0, len(matrix)))
     solution = []
     
@@ -33,15 +53,33 @@ def solution(matrix):
     return solution
 
 
-#computes the path based on the random solution
 def path_length(matrix, solution):
+    """
+    Calcula o comprimento total do caminho baseado em uma solução dada.
+    
+    Args:
+        matrix (np.array): Matriz de adjacência dos pontos.
+        solution (list): Uma solução específica, ou seja, uma sequência de pontos.
+
+    Returns:
+        float: O comprimento total do caminho para a solução fornecida.
+    """
     cycle_length = 0
     for i in range(0, len(solution)):
         cycle_length += matrix[solution[i]][solution[i - 1]]
     return cycle_length
 
-#generate neighbors of the random solution by swapping cities and returns the best neighbor
 def neighbors(matrix, solution):
+    """
+    Gera todos os vizinhos da solução atual por meio da troca de dois pontos e retorna o melhor vizinho.
+    
+    Args:
+        matrix (np.array): Matriz de adjacência dos pontos.
+        solution (list): Solução atual.
+
+    Returns:
+        tuple: Melhor vizinho encontrado e o comprimento do caminho do melhor vizinho.
+    """
     neighbors = []
     for i in range(len(solution)):
         for j in range(i + 1, len(solution)):
@@ -50,11 +88,9 @@ def neighbors(matrix, solution):
             neighbor[j] = solution[i]
             neighbors.append(neighbor)
             
-    #assume that the first neighbor in the list is the best neighbor      
     best_neighbor = neighbors[0]
     best_path = path_length(matrix, best_neighbor)
     
-    #check if there is a better neighbor
     for neighbor in neighbors:
         current_path = path_length(matrix, neighbor)
         if current_path < best_path:
@@ -64,6 +100,15 @@ def neighbors(matrix, solution):
 
 
 def hill_climbing(coordinate):
+    """
+    Executa o algoritmo de subida da colina para encontrar uma solução aproximada para o problema do caixeiro viajante.
+    
+    Args:
+        coordinate (np.array): Array de coordenadas dos pontos.
+
+    Returns:
+        tuple: Comprimento do caminho e a solução correspondente.
+    """
     matrix = generate_matrix(coordinate)
     
     current_solution = solution(matrix)
@@ -81,6 +126,12 @@ def hill_climbing(coordinate):
 
 
 def graph(coordinate):
+    """
+    Visualiza o caminho da solução final usando NetworkX e Matplotlib.
+    
+    Args:
+        coordinate (np.array): Array de coordenadas dos pontos.
+    """
     final_solution = hill_climbing(coordinate)
     G = nx.Graph()
     temp = final_solution[1]
@@ -102,5 +153,4 @@ def graph(coordinate):
     print("The solution is \n", final_solution[1], "\nThe path length is \n", final_solution[0])
     return
 
-    
 graph(coordinate)
