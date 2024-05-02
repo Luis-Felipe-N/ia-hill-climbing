@@ -7,7 +7,12 @@ import pygame
             
 # #coordinate of the points/cities
 # coordinate = np.array([[1,2], [30,21], [56,23]])
-coordinate = np.array([[1,2], [30,21], [56,23], [8,18], [20,50], [3,4], [11,6], [6,7], [15,20], [10,9], [12,12], [46,17], [60,55], [100,80], [16,13]])
+coordinate = np.array(
+    [[113, 121], [ 89, 24], [ 98, 101], [ 57, 93],
+    [102, 42], [130, 44], [119, 149], [100, 11],
+    [26, 131], [85, 30], [80, 81], [57, 146], [144, 104],
+    [133, 135], [88, 119], [92, 58], [132, 9], [75, 66],
+    [47, 52], [84, 47]])
 
 #adjacency matrix for a weighted graph based on the given coordinates
 def generate_matrix(coordinate):
