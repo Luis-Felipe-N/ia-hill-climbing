@@ -1,9 +1,8 @@
 import random
 import numpy as np
 import pygame
-            
-# #coordinate of the points/cities
-# coordinate = np.array([[1,2], [30,21], [56,23]])
+                        
+# Coordenadas dos pontos/cidades
 coordinate = np.array(
     [[113, 121], [89, 24], [98, 101], [57, 93], [102, 42], [130, 44],
      [119, 149], [100, 11], [26, 131], [85, 30], [80, 81], [57, 146],
@@ -15,8 +14,7 @@ coordinate = np.array(
 
 def generate_matrix(coordinate):
     """
-    Gera uma matriz de adjacência para um grafo ponderado baseado nas
-    coordenadas fornecidas.
+    Gera uma matriz baseado nas coordenadas fornecidas.
     A ponderação entre dois pontos é a distância euclidiana entre eles.
 
     Args:
@@ -30,7 +28,6 @@ def generate_matrix(coordinate):
     for i in range(len(coordinate)):
         for j in range(len(coordinate)):
             p = np.linalg.norm(coordinate[i] - coordinate[j])
-            print(p)
             matrix.append(p)
     matrix = np.reshape(matrix, (len(coordinate), len(coordinate)))
 
@@ -99,12 +96,12 @@ def neighbors(matrix, solution):
 
     best_neighbor = neighbors[0]
     best_path = path_length(matrix, best_neighbor)
-
     for neighbor in neighbors:
         current_path = path_length(matrix, neighbor)
         if current_path < best_path:
             best_path = current_path
             best_neighbor = neighbor
+    print(best_neighbor, best_path)
     return best_neighbor, best_path
 
 
@@ -191,7 +188,6 @@ def draw_graph(coordinate, path):
         index = (index + 1) % len(path)  # Avançar para o próximo ponto
 
     pygame.quit()
-
 
 def graph(coordinate):
     final_solution = hill_climbing(coordinate)
