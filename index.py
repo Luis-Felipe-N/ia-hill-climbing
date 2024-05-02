@@ -163,6 +163,12 @@ def draw_graph(coordinate, path):
             text = font.render(str(i), True, GREEN)
             screen.blit(text, (int(x * 5) + 100, int(y * 5) + 100))
 
+        # Desenhar a marcação no ponto de partida
+        start_point = coordinate[path[0]]
+        pygame.draw.circle(screen,
+                           GREEN,
+                           (int(start_point[0] * 5) + 100,
+                            int(start_point[1] * 5) + 100), 7)
         # Desenhar as arestas do caminho até o ponto atual
         for i in range(index):
             pygame.draw.line(screen,
@@ -171,25 +177,19 @@ def draw_graph(coordinate, path):
                               int(coordinate[path[i]][1] * 5) + 100),
                              (int(coordinate[path[i + 1]][0] * 5) + 100,
                               int(coordinate[path[i + 1]][1] * 5) + 100), 2)
-            pygame.draw.line(screen,
-                             BLUE,
-                             (int(coordinate[path[-1]][0] * 5) + 100,
-                              int(coordinate[path[-1]][1] * 5) + 100),
-                             (int(coordinate[path[0]][0] * 5) + 100,
-                              int(coordinate[path[0]][1] * 5) + 100), 2)
-
-        # Desenhar a marcação no ponto de partida
-        start_point = coordinate[path[0]]
-        pygame.draw.circle(screen,
-                           GREEN,
-                           (int(start_point[0] * 5) + 100,
-                            int(start_point[1] * 5) + 100), 7)
-
+            if i == 18:
+                pygame.display.update()
+                pygame.time.wait(500)
+                pygame.draw.line(screen,
+                                 BLUE,
+                                 (int(coordinate[path[-1]][0] * 5) + 100,
+                                  int(coordinate[path[-1]][1] * 5) + 100),
+                                 (int(coordinate[path[0]][0] * 5) + 100,
+                                  int(coordinate[path[0]][1] * 5) + 100), 2)
+        index = (index + 1) % len(path)
         pygame.display.update()
         pygame.time.wait(500)  # Aguardar um pouco antes de atualizar
-
-        index = (index + 1) % len(path)  # Avançar para o próximo ponto
-
+        # Avançar para o próximo ponto
     pygame.quit()
 
 
