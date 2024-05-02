@@ -3,17 +3,19 @@ import random
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
-
+import pygame
             
 # #coordinate of the points/cities
-# coordinate = np.array([[1,2], [30,21], [56,23]])
-coordinate = np.array([[1,2], [30,21], [56,23], [8,18], [20,50], [3,4], [11,6], [6,7], [15,20], [10,9], [12,12], [46,17], [60,55], [100,80], [16,13]])
-
+coordinate = np.array([[113, 121],[ 89,24],[ 98,101], [ 57,93], [102,42], [130 ,44], [119, 149],
+                       [100 , 11], [ 26 ,131], [ 85 , 30], [ 80 , 81], [ 57 ,146], [144, 104], [133, 135], [ 88, 119],[ 92 , 58],
+                       [132  , 9], [ 75 , 66], [ 47 , 52], [ 84 , 47]])
+#coordinate = np.random.randint(0, 150, size=(20, 2))
+#print(coordinate)
 #adjacency matrix for a weighted graph based on the given coordinates
 def generate_matrix(coordinate):
     matrix = []
     for i in range(len(coordinate)):
-        for j in range(len(coordinate)) :       
+        for j in range(len(coordinate)):       
             p = np.linalg.norm(coordinate[i] - coordinate[j])
             matrix.append(p)
     matrix = np.reshape(matrix, (len(coordinate),len(coordinate)))
@@ -80,27 +82,60 @@ def hill_climbing(coordinate):
     return current_path, current_solution
 
 
+# Função para desenhar o grafo usando Pygame
+def draw_graph(coordinate, path):
+    pygame.init()
+    screen = pygame.display.set_mode((1280, 900))
+    pygame.display.set_caption("Traveling Salesman Problem")
+
+    BLACK = (0, 0, 0)
+    RED = (255, 0, 0)
+    GREEN = (0, 255, 0)
+    BLUE = (0, 0, 255)
+
+    font = pygame.font.SysFont(None, 20)
+
+    running = True
+    index = 0  # index to iterate through the path
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        screen.fill(BLACK)
+
+        # Desenhar os pontos (cidades)
+        for i, (x, y) in enumerate(coordinate):
+            pygame.draw.circle(screen, RED, (int(x * 5) + 100, int(y * 5) + 100), 5)
+            text = font.render(str(i), True, GREEN)
+            screen.blit(text, (int(x * 5) + 100, int(y * 5) + 100))
+
+        # Desenhar as arestas do caminho até o ponto atual
+        for i in range(index):
+            pygame.draw.line(screen, BLUE, (int(coordinate[path[i]][0] * 5) + 100, int(coordinate[path[i]][1] * 5) + 100),
+                            (int(coordinate[path[i + 1]][0] * 5) + 100, int(coordinate[path[i + 1]][1] * 5) + 100), 2)
+            pygame.draw.line(screen, BLUE, (int(coordinate[path[-1]][0] * 5) + 100, int(coordinate[path[-1]][1] * 5) + 100),
+                            (int(coordinate[path[0]][0] * 5) + 100, int(coordinate[path[0]][1] * 5) + 100), 2)
+
+        # Desenhar a marcação no ponto de partida
+        start_point = coordinate[path[0]]
+        pygame.draw.circle(screen, GREEN, (int(start_point[0] * 5) + 100, int(start_point[1] * 5) + 100), 7)
+
+        pygame.display.update()
+        pygame.time.wait(500)  # Aguardar um pouco antes de atualizar
+
+        index = (index + 1) % len(path)  # Avançar para o próximo ponto
+
+    pygame.quit()
+
+
 def graph(coordinate):
     final_solution = hill_climbing(coordinate)
-    G = nx.Graph()
-    temp = final_solution[1]
-    G.add_nodes_from(final_solution[1])
-    
-    for i in range(1, len(final_solution[1])):
-        G.add_edge(temp[i - 1], temp[i])
-    G.add_edge(temp[len(temp) - 1], temp[0])
-    color_map = []
-    for node in G:
-        print(node)
-        if node == final_solution[1][0]:
-            color_map.append('lime')
-        else: 
-            color_map.append('plum')
-    nx.draw(G, with_labels = True, node_color = color_map, node_size = 1000)
-    plt.show()
-    
-    print("The solution is \n", final_solution[1], "\nThe path length is \n", final_solution[0])
+    path = final_solution[1]
+    draw_graph(coordinate, path)
+
+    print("The solution is \n", path, "\nThe path length is \n", final_solution[0])
     return
 
-    
+
 graph(coordinate)
