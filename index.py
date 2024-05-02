@@ -1,46 +1,47 @@
-from random import *
 import random
 import numpy as np
-import networkx as nx
-import matplotlib.pyplot as plt
 import pygame
             
 # #coordinate of the points/cities
 # coordinate = np.array([[1,2], [30,21], [56,23]])
 coordinate = np.array(
-    [[113, 121], [ 89, 24], [ 98, 101], [ 57, 93],
-    [102, 42], [130, 44], [119, 149], [100, 11],
-    [26, 131], [85, 30], [80, 81], [57, 146], [144, 104],
-    [133, 135], [88, 119], [92, 58], [132, 9], [75, 66],
-    [47, 52], [84, 47]])
+    [[113, 121], [89, 24], [98, 101], [57, 93], [102, 42], [130, 44],
+     [119, 149], [100, 11], [26, 131], [85, 30], [80, 81], [57, 146],
+     [144, 104], [133, 135], [88, 119], [92, 58], [132, 9], [75, 66],
+     [47, 52], [84, 47]])
 
-#adjacency matrix for a weighted graph based on the given coordinates
+# adjacency matrix for a weighted graph based on the given coordinates
+
+
 def generate_matrix(coordinate):
     """
-    Gera uma matriz de adjacência para um grafo ponderado baseado nas coordenadas fornecidas.
+    Gera uma matriz de adjacência para um grafo ponderado baseado nas
+    coordenadas fornecidas.
     A ponderação entre dois pontos é a distância euclidiana entre eles.
-    
+
     Args:
         coordinate (np.array): Array de coordenadas dos pontos.
 
     Returns:
-        np.array: Matriz de adjacência representando as distâncias entre os pontos.
+        np.array: Matriz de adjacência representando as
+        distâncias entre os pontos.
     """
     matrix = []
     for i in range(len(coordinate)):
-        for j in range(len(coordinate)):       
+        for j in range(len(coordinate)):
             p = np.linalg.norm(coordinate[i] - coordinate[j])
             print(p)
             matrix.append(p)
-    matrix = np.reshape(matrix, (len(coordinate),len(coordinate)))
-    
+    matrix = np.reshape(matrix, (len(coordinate), len(coordinate)))
+
     return matrix
 
 
 def solution(matrix):
     """
-    Gera uma solução aleatória para o problema. A solução é uma permutação dos índices dos pontos.
-    
+    Gera uma solução aleatória para o problema.
+    A solução é uma permutação dos índices dos pontos.
+
     Args:
         matrix (np.array): Matriz de adjacência dos pontos.
 
@@ -49,7 +50,7 @@ def solution(matrix):
     """
     points = list(range(0, len(matrix)))
     solution = []
-    
+
     for i in range(0, len(matrix)):
         random_point = points[random.randint(0, len(points) - 1)]
         solution.append(random_point)
@@ -61,10 +62,11 @@ def solution(matrix):
 def path_length(matrix, solution):
     """
     Calcula o comprimento total do caminho baseado em uma solução dada.
-    
+
     Args:
         matrix (np.array): Matriz de adjacência dos pontos.
-        solution (list): Uma solução específica, ou seja, uma sequência de pontos.
+        solution (list): Uma solução específica,
+        ou seja, uma sequência de pontos.
 
     Returns:
         float: O comprimento total do caminho para a solução fornecida.
@@ -74,10 +76,12 @@ def path_length(matrix, solution):
         cycle_length += matrix[solution[i]][solution[i - 1]]
     return cycle_length
 
+
 def neighbors(matrix, solution):
     """
-    Gera todos os vizinhos da solução atual por meio da troca de dois pontos e retorna o melhor vizinho.
-    
+    Gera todos os vizinhos da solução atual por meio da 
+    troca de dois pontos e retorna o melhor vizinho.
+
     Args:
         matrix (np.array): Matriz de adjacência dos pontos.
         solution (list): Solução atual.
@@ -92,10 +96,10 @@ def neighbors(matrix, solution):
             neighbor[i] = solution[j]
             neighbor[j] = solution[i]
             neighbors.append(neighbor)
-            
+
     best_neighbor = neighbors[0]
     best_path = path_length(matrix, best_neighbor)
-    
+
     for neighbor in neighbors:
         current_path = path_length(matrix, neighbor)
         if current_path < best_path:
@@ -106,8 +110,9 @@ def neighbors(matrix, solution):
 
 def hill_climbing(coordinate):
     """
-    Executa o algoritmo de subida da colina para encontrar uma solução aproximada para o problema do caixeiro viajante.
-    
+    Executa o algoritmo de subida da colina para encontrar uma 
+    solução aproximada para o problema do caixeiro viajante.
+
     Args:
         coordinate (np.array): Array de coordenadas dos pontos.
 
@@ -115,10 +120,10 @@ def hill_climbing(coordinate):
         tuple: Comprimento do caminho e a solução correspondente.
     """
     matrix = generate_matrix(coordinate)
-    
+
     current_solution = solution(matrix)
     current_path = path_length(matrix, current_solution)
-    neighbor = neighbors(matrix,current_solution)[0]
+    neighbor = neighbors(matrix, current_solution)[0]
     best_neighbor, best_neighbor_path = neighbors(matrix, neighbor)
 
     while best_neighbor_path < current_path:
@@ -160,14 +165,25 @@ def draw_graph(coordinate, path):
 
         # Desenhar as arestas do caminho até o ponto atual
         for i in range(index):
-            pygame.draw.line(screen, BLUE, (int(coordinate[path[i]][0] * 5) + 100, int(coordinate[path[i]][1] * 5) + 100),
-                            (int(coordinate[path[i + 1]][0] * 5) + 100, int(coordinate[path[i + 1]][1] * 5) + 100), 2)
-            pygame.draw.line(screen, BLUE, (int(coordinate[path[-1]][0] * 5) + 100, int(coordinate[path[-1]][1] * 5) + 100),
-                            (int(coordinate[path[0]][0] * 5) + 100, int(coordinate[path[0]][1] * 5) + 100), 2)
+            pygame.draw.line(screen,
+                             BLUE,
+                             (int(coordinate[path[i]][0] * 5) + 100,
+                              int(coordinate[path[i]][1] * 5) + 100),
+                             (int(coordinate[path[i + 1]][0] * 5) + 100,
+                              int(coordinate[path[i + 1]][1] * 5) + 100), 2)
+            pygame.draw.line(screen,
+                             BLUE,
+                             (int(coordinate[path[-1]][0] * 5) + 100,
+                              int(coordinate[path[-1]][1] * 5) + 100),
+                             (int(coordinate[path[0]][0] * 5) + 100,
+                              int(coordinate[path[0]][1] * 5) + 100), 2)
 
         # Desenhar a marcação no ponto de partida
         start_point = coordinate[path[0]]
-        pygame.draw.circle(screen, GREEN, (int(start_point[0] * 5) + 100, int(start_point[1] * 5) + 100), 7)
+        pygame.draw.circle(screen,
+                           GREEN,
+                           (int(start_point[0] * 5) + 100,
+                            int(start_point[1] * 5) + 100), 7)
 
         pygame.display.update()
         pygame.time.wait(500)  # Aguardar um pouco antes de atualizar
@@ -178,18 +194,13 @@ def draw_graph(coordinate, path):
 
 
 def graph(coordinate):
-    """
-    Visualiza o caminho da solução final usando NetworkX e Matplotlib.
-    
-    Args:
-        coordinate (np.array): Array de coordenadas dos pontos.
-    """
     final_solution = hill_climbing(coordinate)
     path = final_solution[1]
     draw_graph(coordinate, path)
 
-    print("The solution is \n", path, "\nThe path length is \n", final_solution[0])
+    print("The solution is \n", path,
+          "\nThe path length is \n", final_solution[0])
     return
 
-    
+
 graph(coordinate)
